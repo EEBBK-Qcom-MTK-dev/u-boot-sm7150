@@ -74,48 +74,48 @@
 	};
 
     reserved-memory {
-		mpss_mem: memory@8b000000 {
-			reg = <0x0 0x8b000000 0x0 0x8e00000>;
+		mpss_mem: memory@ab000000 {
+			reg = <0x0 0xab000000 0x0 0x8e00000>;
 			no-map;
 		};
 
-		venus_mem: memory@94800000 {
-			reg = <0x0 0x94800000 0x0 0x500000>;
+		venus_mem: memory@aab00000 {
+			reg = <0x0 0xaab00000 0x0 0x500000>;
 			no-map;
 		};
 
-		cdsp_mem: memory@94d00000 {
-			reg = <0x0 0x94d00000 0x0 0x1e00000>;
+		cdsp_mem: memory@b4300000 {
+			reg = <0x0 0xb4300000 0x0 0x1e00000>;
 			no-map;
 		};
 
-		adsp_mem: memory@96b00000 {
-			reg = <0x00 0x96b00000 0x00 0x2000000>;
+		adsp_mem: memory@e1b00000 {
+			reg = <0x00 0xe1b00000 0x00 0x2000000>;
 			no-map;
 		};
 
-		wlan_msa_mem: memory@98d00000 {
-			reg = <0x0 0x98d00000 0x0 0x180000>;
+		wlan_msa_mem: memory@b8100000 {
+			reg = <0x0 0xb8100000 0x0 0x180000>;
 			no-map;
 		};
 
-		npu_mem: memory@98f00000 {
-			reg = <0x0 0x98f00000 0x0 0x80000>;
+		npu_mem: memory@b7080000 {
+			reg = <0x0 0xb7080000 0x0 0x80000>;
 			no-map;
 		};
 
-		ipa_fw_mem: memory@98f80000 {
-			reg = <0x0 0x98f80000 0x0 0x10000>;
+		ipa_fw_mem: memory@b7100000 {
+			reg = <0x0 0xb7100000 0x0 0x10000>;
 			no-map;
 		};
 
-		ipa_gsi_mem: memory@98f90000 {
-			reg = <0x0 0x98f90000 0x0 0x5000>;
+		ipa_gsi_mem: memory@b7110000 {
+			reg = <0x0 0xb7110000 0x0 0x5000>;
 			no-map;
 		};
 
-		gpu_mem: memory@98f95000 {
-			reg = <0x0 0x98f95000 0x0 0x2000>;
+		gpu_mem: memory@b8315000 {
+			reg = <0x0 0xb8315000 0x0 0x2000>;
 			no-map;
 		};
 
@@ -124,18 +124,19 @@
 			no-map;
 		};
 
-		ramoops_mem: ramoops@a481f000 {
+		ramoops_mem: ramoops@b8e00000 {
 			compatible = "ramoops";
-			reg = <0x0 0xa481f000 0x0 0x400000>;
-
+			reg = <0x0 0xb8e00000 0x0 0x400000>;
 			record-size = <0x40000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
 			pmsg-size = <0x200000>;
-			console-size = <0x100000>;
+			devinfo-size = <0x1000>;
 		};
 
 		rmtfs_mem: rmtfs@fde01000 {
 			compatible = "qcom,rmtfs-mem";
-			reg = <0x0 0xfde01000 0x0 0x600000>;
+			reg = <0x0 0xfde01000 0x0 0x200000>;
 			no-map;
 
 			qcom,client-id = <1>;
@@ -164,43 +165,72 @@
 		regulator-always-on;
 		vin-supply = <&vph_pwr>;
 	};
-	
-	panel_vddio: panel_ldo {
-	    compatible = "regulator-fixed";
-	    regulator-name = "VDDIO";
-	    
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1900000>;
-		regulator-initial-mode = <RPMH_REGULATOR_MODE_HPM>;
-		regulator-boot-on;
-	};	
 
-	panel_vci_3v3: panel-vci-3v3-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "LCD_VCI_3V";
-
-		regulator-min-microvolt = <3000000>;
-		regulator-max-microvolt = <3000000>;
-
-		gpio = <&tlmm 26 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		pinctrl-0 = <&panel_vci_default>;
+	sound {
+		compatible = "qcom,sm8250-sndcard";
+		pinctrl-0 = <&pri_mi2s_active &pri_mi2s_ws_active>;
 		pinctrl-names = "default";
-		regulator-boot-on;
+		model = "OPPO K5";
+
+		mm1-dai-link {
+			link-name = "MultiMedia1";
+			cpu {
+				sound-dai = <&q6asmdai MSM_FRONTEND_DAI_MULTIMEDIA1>;
+			};
+		};
+
+		speaker_playback_dai {
+			link-name = "Primary Spkr Playback";
+			cpu {
+				sound-dai = <&q6afedai PRIMARY_MI2S_RX>;
+			};
+
+			platform {
+				sound-dai = <&q6routing>;
+			};
+
+			codec {
+				sound-dai = <&tfa9874>;
+			};
+		};
+	};
+};
+
+&q6afedai {
+	qi2s@16 {
+		reg = <PRIMARY_MI2S_RX>;
+		qcom,sd-lines = <0>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <MSM_FRONTEND_DAI_MULTIMEDIA1>;
+	};
+};
+
+&pm6150l_lpg {
+	status = "okay";
+
+	led@1 {
+		reg = <1>;
+		color = <LED_COLOR_ID_RED>;
+		function = LED_FUNCTION_STATUS;
+		function-enumerator = <0>;
 	};
 
-	panel_vddi_poc_1p8: panel-vddi-poc-regulator {
-		compatible = "regulator-fixed";
-		regulator-name = "VDDI_POC";
+	led@2 {
+		reg = <2>;
+		color = <LED_COLOR_ID_RED>;
+		function = LED_FUNCTION_STATUS;
+		function-enumerator = <1>;
+	};
 
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-
-		gpio = <&tlmm 25 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
-		pinctrl-0 = <&panel_poc_default>;
-		pinctrl-names = "default";
-		regulator-boot-on;
+	led@3 {
+		reg = <3>;
+		color = <LED_COLOR_ID_RED>;
+		function = LED_FUNCTION_STATUS;
+		function-enumerator = <2>;
 	};
 };
 
@@ -567,19 +597,7 @@
 	};
 };
 
-&i2c0 {
-    status = "okay";
-    
-    tfa98xx@35 {
-		compatible = "nxp,tfa98xx";
-		reg = <0x35>;
-		tfa9874_vdd-supply = <&vreg_l10a_1p8>;
-		tfa98xx_fw_name = "tfa98xx.cnt";
-		status = "okay";
-	};
-};
-
-&i2c1 {
+/*&i2c1 {
 	status = "okay";
 
 	synaptics7150@20 {
@@ -588,15 +606,15 @@
 		chip-name = "S3706";
 
 		/* Interrupt && Irq-gpio */
-		interrupt-parent = <&tlmm>;
+/*		interrupt-parent = <&tlmm>;
 		interrupts = <9 0x00>;
 
 		/* Power Config */
-		vdd_2v8-supply = <&vreg_l7c_3p0>;
+/*		vdd_2v8-supply = <&vreg_l7c_3p0>;
 		vcc_1v8-supply = <&vreg_l12a_1p8>;
 
 		/* Other HW Resource */
-		irq-gpio = <&tlmm 9 0x2008>;
+/*		irq-gpio = <&tlmm 9 0x2008>;
 		reset-gpio = <&tlmm 8 0x1>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
@@ -613,7 +631,7 @@
 		platform_support_project_commandline = "default_commandline";
 
 		/* SW Support Feature Control */
-		black_gesture_support;
+/*		black_gesture_support;
 		fw_edge_limit_support;
 		fw_corner_limit_support;
 		charger_pump_support;
@@ -628,6 +646,82 @@
 
 		touchpanel,button-type = <4>;
 		touchpanel.button-TRx = <0 0>;
+	};
+};*/
+
+&i2c1 {
+	status = "okay";
+	#address-cells = <1>;
+    #size-cells = <0>;
+
+	touchscreen@20 {
+		compatible = "syna,rmi4-i2c";
+		reg = <0x20>;
+		
+		/* Interrupt Configuration */
+		interrupt-parent = <&tlmm>;
+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+		
+		/* Reset GPIO */
+		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
+		
+		/* Power Configuration */
+		vdd-supply = <&vreg_l7c_3p0>;
+		vio-supply = <&vreg_l12a_1p8>;
+		
+		/* Pin Control */
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		
+		/* Startup Delay */
+		syna,startup-delay-ms = <100>;
+		
+		/* RMI4 Function Descriptors */
+		#address-cells = <1>;
+		#size-cells = <0>;
+		
+		/* Function 01: RMI Device Control */
+		rmi4-f01@1 {
+			reg = <0x1>;
+			syna,nosleep-mode = <2>; /* 2 = enable nosleep (disabling sleep) */
+		};
+		
+		/* Function 12: 2D Touch Reporting */
+		rmi4-f12@12 {
+			reg = <0x12>;
+			syna,sensor-type = <1>; /* 1 = touchscreen */
+			
+			/* Clip coordinates */
+			syna,clip-x-high = <1079>; /* 1080-1 */
+			syna,clip-y-high = <2339>; /* 2340-1 */
+			
+			/* Touchscreen properties */
+		/*	touchscreen-size-x = <1080>;
+			touchscreen-size-y = <2340>;*/
+		};
+		
+		/* Function 1A: Buttons */
+		rmi4-f1a@1a {
+			reg = <0x1a>;
+			linux,keycodes = <KEY_BACK KEY_HOME KEY_MENU>;
+		};
+	};
+};
+&i2c3 {
+	clock-frequency = <100000>;
+	status = "okay";
+
+	tfa9874: codec@35 {
+		compatible = "nxp,tfa9874";
+		reg = <0x34>;
+
+		reset-gpio = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		irq-gpio = <&tlmm 56 GPIO_ACTIVE_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&spkr_reset &spkr_int>;
+
+		#sound-dai-cells = <0>;
 	};
 };
 
@@ -645,22 +739,14 @@
 	vdda-supply = <&vdda_mipi_dsi0_1p2>;
 	status = "okay";
 
-	display_panel: panel@0 {
-		status = "okay";
-		compatible = "samsung,s6e3fc2x01-ams641rw", "samsung,s6e3fc2x01";
-
+	panel@0 {
+		compatible = "samsung,oppo-18097-ams641rw01";
 		reg = <0>;
 
-		vddio-supply = <&panel_vddio>;
-		vci-supply = <&panel_vci_3v3>;
-		poc-supply = <&panel_vddi_poc_1p8>;
-
-		te-gpios = <&tlmm 10 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&pm6150l_gpios 9 GPIO_ACTIVE_LOW>;
-
-		pinctrl-0 = <&panel_default>;
-		pinctrl-1 = <&panel_sleep>;
-		pinctrl-names = "default", "sleep";
+		
+		pinctrl-0 = <&panel_reset_n &mdp_vsync_p>;
+		pinctrl-names = "default";
 
 		port {
 			panel_in: endpoint {
@@ -723,15 +809,6 @@
 					remote-endpoint = <&usb_1_qmpphy_out>;
 				};
 			};
-
-			/* TODO: Investigate, I don't think fsa4480 exists
-			port@2 {
-				reg = <2>;
-				pm6150_typec_sbu_out: endpoint {
-					remote-endpoint = <&fsa4480_sbu_mux>;
-				};
-			};
-			*/
 		};
 	};
 };
@@ -764,7 +841,7 @@
 		power-source = <0>;
 	};
 
-	lcd_reset_n: lcd-reset-n-state {
+	panel_reset_n: panel-reset-n-state {
 		pins = "gpio9";
 		function = PMIC_GPIO_FUNC_FUNC1;
 		qcom,drive-strength = <PMIC_GPIO_STRENGTH_MED>;
@@ -839,6 +916,13 @@
 
 &tlmm {
 	gpio-reserved-ranges = <59 4>;
+	
+	mdp_vsync_p: mdp-vsync-p-state {
+		pins = "gpio10";
+		function = "mdp_vsync";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
 
 	qup_uart3_sleep: qup-uart3-sleep-state {
 		cts-pins {
@@ -866,120 +950,65 @@
 		};
 	};
 	
-	panel_vci_default: vci-state {
-		pins = "gpio26";
-		function = "gpio";
-		drive-strength = <8>;
-		bias-disable;
-	};
-
-	panel_poc_default: poc-state {
-		pins = "gpio25";
-		function = "gpio";
-		drive-strength = <8>;
-		bias-disable;
-	};
-	
-	panel_default: panel-default-state {
-		esd-pins {
-			pins = "gpio30";
-			function = "gpio";
-			drive-strength = <2>;
-			bias-pull-down;
-		};
-
-		reset-pins {
-			pins = "gpio9";
-			function = "gpio";
-			drive-strength = <8>;
-			bias-disable;
-		};
-
-		te-pins {
-			pins = "gpio10";
-			function = "mdp_vsync";
-			drive-strength = <2>;
-			bias-disable;
-		};
-	};
-
-	panel_sleep: panel-sleep-state {
-		esd-pins {
-			pins = "gpio30";
-			function = "gpio";
-			drive-strength = <2>;
-			bias-pull-down;
-		};
-
-		reset-pins {
-			pins = "gpio9";
-			function = "gpio";
-			drive-strength = <2>;
-			bias-pull-down;
-		};
-
-		te-pins {
-			pins = "gpio10";
-			function = "mdp_vsync";
-			drive-strength = <2>;
-			bias-disable;
-		};
-	};
-	
 	ts_active: pmx_ts_active-state {
-    	ts_active {
-			pins = "gpio8", "gpio9";
-			function = "gpio";
-			drive-strength = <0x08>;
-			bias-pull-up;
-		};
+		pins = "gpio8", "gpio9";
+		function = "gpio";
+		drive-strength = <0x08>;
+		bias-pull-up;
 	};
 
 	ts_int_active: pmx_ts_int_active-state {
-	    ts_int_active {
-			pins = "gpio9";
-			function = "gpio";
-			drive-strength = <0x08>;
-			bias-pull-up;
-		};
+		pins = "gpio9";
+		function = "gpio";
+		drive-strength = <0x08>;
+		bias-pull-up;
 	};
 
 	ts_int_sleep: pmx_ts_int_suspend-state {
-		ts_int_suspend {
-			pins = "gpio9";
-			function = "gpio";
-			drive-strength = <0x02>;
-			bias-pull-down;
-		};
+		pins = "gpio9";
+		function = "gpio";
+		drive-strength = <0x02>;
+		bias-pull-down;
 	};
 
 	ts_reset_active: pmx_ts_reset_active-state{
-		ts_reset_active {
-			pins = "gpio8";
-			function = "gpio";
-			drive-strength = <0x08>;
-			input-disable;
-			bias-disable;
-		};
+		pins = "gpio8";
+		function = "gpio";
+		drive-strength = <0x08>;
+		input-disable;
+		bias-disable;
 	};
 
-	ts_reset_sleep: pmx_ts_reset_suspend-state {			
-		ts_reset_suspend {
-			pins = "gpio8";
-			function = "gpio";
-			drive-strength = <0x02>;					
-			input-disable;
-			bias-pull-down;
-		};
+	ts_reset_sleep: pmx_ts_reset_suspend-state {
+		pins = "gpio8";
+		function = "gpio";
+		drive-strength = <0x02>;					
+		input-disable;
+		bias-pull-down;
 	};
 
 	ts_release: pmx_ts_release-state {
-		ts_release {
-			pins = "gpio9", "gpio8";
-			function = "gpio";
-			drive-strength = <0x02>;
-			bias-pull-down;
-		};
+		pins = "gpio9", "gpio8";
+		function = "gpio";
+		drive-strength = <0x02>;
+		bias-pull-down;
+	};
+	
+	spkr_reset: spkr-reset-state {
+		pins = "gpio12";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		bias-pull-down;
+		output-low;
+	};
+
+	spkr_int: spkr-int-state {
+		pins = "gpio56";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+		input-enable;
 	};
 };
 

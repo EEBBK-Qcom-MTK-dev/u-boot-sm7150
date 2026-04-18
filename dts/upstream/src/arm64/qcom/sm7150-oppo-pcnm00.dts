@@ -670,6 +670,9 @@
 		vdd-supply = <&vreg_l7c_3p0>;
 		vio-supply = <&vreg_l12a_1p8>;
 		
+		touchscreen-size-x = <1080>;
+		touchscreen-size-y = <2340>;
+		
 		/* Pin Control */
 		pinctrl-names = "default";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
@@ -700,14 +703,9 @@
 		/*	touchscreen-size-x = <1080>;
 			touchscreen-size-y = <2340>;*/
 		};
-		
-		/* Function 1A: Buttons */
-		rmi4-f1a@1a {
-			reg = <0x1a>;
-			linux,keycodes = <KEY_BACK KEY_HOME KEY_MENU>;
-		};
 	};
 };
+
 &i2c3 {
 	clock-frequency = <100000>;
 	status = "okay";

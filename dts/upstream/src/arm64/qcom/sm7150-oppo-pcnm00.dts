@@ -724,6 +724,17 @@
 	};
 };
 
+&spi8 {
+	status = "okay";
+
+	irled@0 {
+		compatible = "ir-spi-led";
+		reg = <0x0>;
+
+		spi-max-frequency = <19200000>;
+	};
+};
+
 &ipa {
 	memory-region = <&ipa_fw_mem>;
 	firmware-name = "qcom/sm7150/oppo/pcnm00/ipa_fws.mbn";

@@ -32,6 +32,8 @@
 	compatible = "oppo,pcnm00", "qcom,sm7150";
 	chassis-type = "handset";
 
+	board-id = <0x22 0x00>;
+
 	aliases {
 		bluetooth0 = &bluetooth;
 		hsuart0 = &uart3;
@@ -750,7 +752,7 @@
 	status = "okay";
 
 	panel@0 {
-		compatible = "samsung,oppo-18097-ams641rw01";
+		compatible = "samsung,ams641rw01";
 		reg = <0>;
 
 		reset-gpios = <&pm6150l_gpios 9 GPIO_ACTIVE_LOW>;

@@ -74,6 +74,15 @@
 			linux,can-disable;
 			wakeup-source;
 		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			debounce-interval = <15>;
+			linux,can-disable;
+			wakeup-source;
+		};
 	};
 
     reserved-memory {
